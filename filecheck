@@ -1,0 +1,44 @@
+#!/bin/bash
+
+# paths
+FILE="/etc/crontab"
+FILE_HASH="$HOME/crontab_hash"
+ROOT_EMAIL="root@localhost"
+
+# colors
+GREEN='\033[1;32m'
+BLUE='\033[1;34m'
+RED='\033[0;31m'
+NC='\033[0m'
+
+'
+function send_email {
+	#mail -s "WARNING:: The file ${FILE} has been tampered." ${ROOT_EMAIL} < ${FILE}
+}
+
+function file_check {
+	md5sum --status --check ${FILE_HASH}
+	Result=$?
+	if (( $Result == 0 )) ; then
+		echo -e "${GREEN}File integrity verified, no changes have been made.${NC}"
+	else
+		send_email
+		echo -e "${RED}WARNING:: File integrity compromised. An email was sent to ${BLUE}${ROOT_EMAIL}${NC}"
+	fi
+}
+'
+
+function hash_create {
+	echo -e "${GREEN}Creating ${BLUE}$FILE_HASH${NC}"
+	touch "${FILE_HASH}"
+	md5sum $FILE >> ${FILE_HASH}
+	echo -e "${BLUE}${FILE_HASH} ${GREEN}file created.${NC}"
+}
+
+if [ ! -f "${FILE_HASH}" ]; then
+	hash_create
+fi
+file_check
+
+# To schedule this task, as root add this line to your crontab using crontab -e or adding it to /etc/crontab
+# 0 0 * * * root ~/crontab_monitor

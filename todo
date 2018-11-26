@@ -1,0 +1,49 @@
+#!/bin/bash
+
+# paths
+TODO_FILE="$HOME/Desktop/shell_scripting/todo.txt"
+
+# variables
+task=''
+important=''
+urgent=''
+
+
+add_task () {
+	echo -e \
+   	"Task: $task" \
+	"\nImportant: $important" \
+	"\nUrgent: $urgent\n\n" \
+	 >> $TODO_FILE	
+}
+
+while getopts ":u:i:t:l" opt; do
+	case $opt in
+		i)
+			echo "-i triggered, parameter: $OPTARG" >&1
+			important="$OPTARG"
+			;;
+		u)
+			echo "-u triggered, parameter: $OPTARG" >&1
+			urgent="$OPTARG"
+			;;
+		t)
+			echo "-t triggered, parameter: $OPTARG" >&1
+			task="$OPTARG"
+			;;
+		l)
+			cat $TODO_FILE
+			exit 1
+			;;
+		\?)
+			echo "invalid option" >&2
+			exit 1
+			;;
+		:)
+			echo "Option -$OPTARG requires an argument" >&1
+			exit 1
+			;;
+	esac
+done
+
+add_task
